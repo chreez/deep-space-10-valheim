@@ -45,7 +45,7 @@ deep.space.10-workspace/
 - `./scripts/server_control.sh [command]` - Server management
 
 ### Monitoring & Maintenance
-- `./scripts/health_check.py` - Comprehensive health check
+- `./scripts/server_control.sh status` - Comprehensive status and health check
 - `./scripts/verify_loop.sh [interval]` - Continuous monitoring
 - `./scripts/backup_world.sh [type]` - World backups
 - `./scripts/tail_logs.sh [log_type]` - Log viewing
@@ -65,7 +65,7 @@ deep.space.10-workspace/
 ./scripts/server_control.sh restart
 
 # Health monitoring
-python3 scripts/health_check.py
+./scripts/server_control.sh status
 ./scripts/verify_loop.sh 300  # Check every 5 minutes
 
 # View logs

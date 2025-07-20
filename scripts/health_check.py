@@ -8,6 +8,7 @@ import subprocess
 import json
 import time
 import logging
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -18,19 +19,31 @@ class HealthMonitor:
     def __init__(self, ssh_config_path="./config/ssh_config"):
         self.ssh_config = ssh_config_path
         self.remote_host = "windows-host"
-        self.remote_user = "steam"
-        self.workspace_dir = "/mnt/c/deep.space.10"
+        self.remote_user = "chris"
+        self.workspace_dir = "/mnt/e/deep.space.10"
         
     def ssh_exec(self, command, check=True):
         """Execute command on remote host via SSH"""
         full_command = [
-            "ssh", "-F", self.ssh_config,
-            f"{self.remote_user}@{self.remote_host}",
+            os.path.expanduser("~/.dotfiles/bin/ssh_windows_wsl"),
+            self.remote_user,
+            "192.168.1.236",
             command
         ]
         try:
             result = subprocess.run(full_command, capture_output=True, text=True, check=check, timeout=30)
-            return result.stdout.strip(), result.stderr.strip(), result.returncode
+            # Extract the actual output after the SSH tool messages
+            output_lines = result.stdout.strip().split('\n')
+            actual_output = []
+            capture = False
+            for line in output_lines:
+                if line.startswith("🚀 Executing command"):
+                    capture = True
+                    continue
+                if capture:
+                    actual_output.append(line)
+            stdout = '\n'.join(actual_output) if actual_output else result.stdout.strip()
+            return stdout, result.stderr.strip(), result.returncode
         except subprocess.TimeoutExpired:
             return "", "Command timed out", 1
         except Exception as e:
@@ -38,21 +51,23 @@ class HealthMonitor:
     
     def check_process_running(self):
         """Check if server process is running"""
-        stdout, stderr, returncode = self.ssh_exec("tasklist | findstr valheim_server", check=False)
+        stdout, stderr, returncode = self.ssh_exec("ps aux | grep -v grep | grep valheim_server.x86_64", check=False)
         
-        if returncode == 0 and "valheim_server.exe" in stdout:
-            # Extract process info
+        if returncode == 0 and "valheim_server.x86_64" in stdout:
+            # Extract process info from ps output
             lines = stdout.split('\n')
             for line in lines:
-                if "valheim_server.exe" in line:
+                if "valheim_server.x86_64" in line and "grep" not in line:
                     parts = line.split()
-                    if len(parts) >= 5:
+                    if len(parts) >= 11:
                         pid = parts[1]
-                        memory = parts[4]
+                        cpu = parts[2]
+                        memory = parts[3]
                         return {
                             "status": "running",
                             "pid": pid,
-                            "memory_usage": memory
+                            "cpu_usage": cpu + "%",
+                            "memory_usage": memory + "%"
                         }
             return {"status": "running", "pid": "unknown", "memory_usage": "unknown"}
         else:
@@ -63,60 +78,56 @@ class HealthMonitor:
         port_status = {}
         
         for port in [2456, 2457, 2458]:
-            stdout, stderr, returncode = self.ssh_exec(f"netstat -an | findstr :{port}", check=False)
-            port_status[port] = "LISTENING" in stdout
+            stdout, stderr, returncode = self.ssh_exec(f"netstat -tuln | grep :{port}", check=False)
+            port_status[port] = str(port) in stdout
             
         return port_status
     
     def check_memory_usage(self):
         """Check system memory usage"""
-        stdout, stderr, returncode = self.ssh_exec("wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value", check=False)
+        stdout, stderr, returncode = self.ssh_exec("free -m", check=False)
         
         if returncode == 0:
-            total_mem = 0
-            free_mem = 0
-            
-            for line in stdout.split('\n'):
-                if "TotalVisibleMemorySize=" in line:
-                    total_mem = int(line.split('=')[1]) * 1024  # Convert to bytes
-                elif "FreePhysicalMemory=" in line:
-                    free_mem = int(line.split('=')[1]) * 1024
-            
-            if total_mem > 0:
-                used_mem = total_mem - free_mem
-                usage_percent = (used_mem / total_mem) * 100
-                
-                return {
-                    "total_mb": total_mem // (1024 * 1024),
-                    "used_mb": used_mem // (1024 * 1024),
-                    "free_mb": free_mem // (1024 * 1024),
-                    "usage_percent": round(usage_percent, 2)
-                }
+            lines = stdout.split('\n')
+            for line in lines:
+                if line.startswith('Mem:'):
+                    parts = line.split()
+                    if len(parts) >= 4:
+                        total_mb = int(parts[1])
+                        used_mb = int(parts[2])
+                        free_mb = int(parts[3])
+                        usage_percent = (used_mb / total_mb) * 100
+                        
+                        return {
+                            "total_mb": total_mb,
+                            "used_mb": used_mb,
+                            "free_mb": free_mb,
+                            "usage_percent": round(usage_percent, 2)
+                        }
         
         return {"error": "Could not determine memory usage"}
     
     def check_disk_space(self):
         """Check available disk space"""
-        stdout, stderr, returncode = self.ssh_exec("wmic logicaldisk get size,freespace,caption", check=False)
+        stdout, stderr, returncode = self.ssh_exec("df -h /mnt/e", check=False)
         
         if returncode == 0:
             lines = stdout.split('\n')
             for line in lines:
-                if 'C:' in line:
+                if '/mnt/e' in line:
                     parts = line.split()
-                    if len(parts) >= 3:
-                        caption = parts[0]
-                        free_space = int(parts[1]) // (1024 * 1024 * 1024)  # Convert to GB
-                        total_space = int(parts[2]) // (1024 * 1024 * 1024)
-                        used_space = total_space - free_space
-                        usage_percent = (used_space / total_space) * 100
+                    if len(parts) >= 6:
+                        total = parts[1]
+                        used = parts[2]
+                        free = parts[3]
+                        usage_percent = parts[4].strip('%')
                         
                         return {
-                            "drive": caption,
-                            "total_gb": total_space,
-                            "used_gb": used_space,
-                            "free_gb": free_space,
-                            "usage_percent": round(usage_percent, 2)
+                            "drive": "/mnt/e",
+                            "total": total,
+                            "used": used,
+                            "free": free,
+                            "usage_percent": float(usage_percent)
                         }
         
         return {"error": "Could not determine disk space"}
@@ -131,12 +142,14 @@ class HealthMonitor:
         """Get server uptime"""
         process_info = self.check_process_running()
         if process_info["status"] == "running" and "pid" in process_info:
-            # Get process start time (simplified)
+            # Get process start time using ps
             stdout, stderr, returncode = self.ssh_exec(
-                f"wmic process where processid={process_info['pid']} get CreationDate", 
+                f"ps -p {process_info['pid']} -o etime=", 
                 check=False
             )
-            if returncode == 0:
+            if returncode == 0 and stdout.strip():
+                return {"uptime": stdout.strip(), "status": "running"}
+            else:
                 return {"uptime": "Unknown", "status": "running"}
         
         return {"uptime": "0", "status": "not_running"}
@@ -252,7 +265,7 @@ class HealthMonitor:
         disk = health_data["disk"]
         if "usage_percent" in disk:
             emoji = "🟢" if disk["usage_percent"] < 80 else "🟡" if disk["usage_percent"] < 95 else "🔴"
-            report.append(f"{emoji} Disk Usage: {disk['usage_percent']}% ({disk['free_gb']}GB free)")
+            report.append(f"{emoji} Disk Usage: {disk['usage_percent']}% ({disk['free']} free of {disk['total']})")
         
         # Mod status
         mods = health_data["mods"]

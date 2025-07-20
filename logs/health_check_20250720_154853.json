@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-07-20T15:48:48.735209",
+  "process": {
+    "status": "running",
+    "pid": "unknown",
+    "memory_usage": "unknown"
+  },
+  "ports": {
+    "2456": true,
+    "2457": true,
+    "2458": true
+  },
+  "memory": {
+    "total_mb": 15953,
+    "used_mb": 677,
+    "free_mb": 15320,
+    "usage_percent": 4.24
+  },
+  "disk": {
+    "drive": "/mnt/e",
+    "total": "931G",
+    "used": "563G",
+    "free": "369G",
+    "usage_percent": 61.0
+  },
+  "players": {
+    "current_players": 0,
+    "max_players": 10
+  },
+  "uptime": {
+    "uptime": "\ud83d\udd10 SSH Windows WSL Connection Tool\n==================================\n\ud83c\udfaf Using IP override: 192.168.1.236\n\n\ud83d\udccd Step 1: Trying primary host chris@192.168.1.236\n\ud83d\udd0d Testing SSH connection to chris@192.168.1.236...\nSSH OK\n\u2705 SSH connection successful to chris@192.168.1.236\n\ud83d\ude80 Executing command on chris@192.168.1.236: ps -p unknown -o etime=",
+    "status": "running"
+  },
+  "mods": {
+    "status": "verified",
+    "expected_mods": 2,
+    "loaded_indicators": 0
+  },
+  "overall_health": "healthy",
+  "issues": []
+}

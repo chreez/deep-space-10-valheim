@@ -1,7 +1,7 @@
 Host windows-host
     HostName 192.168.1.236
-    User steam
+    User chris
     Port 22
-    IdentityFile ~/.ssh/valheim_deploy_key
+    IdentityFile ~/.ssh/id_rsa
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null

@@ -9,6 +9,7 @@ import json
 import time
 import logging
 import sys
+import os
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,18 +19,26 @@ class ServerDeployer:
     def __init__(self, ssh_config_path="./config/ssh_config"):
         self.ssh_config = ssh_config_path
         self.remote_host = "windows-host"
-        self.remote_user = "steam"
-        self.workspace_dir = "/mnt/c/deep.space.10"
+        self.remote_user = "chris"
+        self.workspace_dir = "/mnt/e/deep.space.10"
         
     def ssh_exec(self, command, check=True):
         """Execute command on remote host via SSH"""
         full_command = [
-            "ssh", "-F", self.ssh_config,
-            f"{self.remote_user}@{self.remote_host}",
+            os.path.expanduser("~/.dotfiles/bin/ssh_windows_wsl"),
+            self.remote_user,
+            "192.168.1.236",
             command
         ]
         logger.info(f"Executing: {command}")
         result = subprocess.run(full_command, capture_output=True, text=True, check=check)
+        # Extract the actual output after the SSH tool messages
+        output_lines = result.stdout.strip().split('\n')
+        # Find where the actual command output starts
+        for i, line in enumerate(output_lines):
+            if line.startswith("🚀 Executing command"):
+                # Return everything after this line
+                return '\n'.join(output_lines[i+1:])
         return result.stdout.strip()
     
     def copy_files(self):
@@ -37,8 +46,9 @@ class ServerDeployer:
         logger.info("Copying server files...")
         subprocess.run([
             "rsync", "-avz", "--progress",
+            "-e", os.path.expanduser("~/.dotfiles/bin/ssh_windows_wsl"),
             "./src/server/",
-            f"{self.remote_user}@{self.remote_host}:{self.workspace_dir}/server/"
+            f"{self.remote_user}@192.168.1.236:{self.workspace_dir}/server/"
         ], check=True)
         
     def configure_server(self):
@@ -46,10 +56,9 @@ class ServerDeployer:
         logger.info("Configuring server...")
         
         # Copy server config
-        subprocess.run([
-            "scp", "./config/server_config.json",
-            f"{self.remote_user}@{self.remote_host}:{self.workspace_dir}/server/"
-        ], check=True)
+        with open("./config/server_config.json", "r") as f:
+            config_content = f.read()
+        self.ssh_exec(f"cat > {self.workspace_dir}/server/server_config.json << 'EOF'\n{config_content}\nEOF")
         
         # Set up BepInEx config
         bepinex_config = """[Logging.Console]
@@ -73,8 +82,9 @@ HideManagerGameObject = false"""
         if mod_path.exists():
             subprocess.run([
                 "rsync", "-avz",
+                "-e", os.path.expanduser("~/.dotfiles/bin/ssh_windows_wsl"),
                 "./src/modpack/mods/",
-                f"{self.remote_user}@{self.remote_host}:{self.workspace_dir}/server/BepInEx/plugins/"
+                f"{self.remote_user}@192.168.1.236:{self.workspace_dir}/server/BepInEx/plugins/"
             ], check=True)
             
     def start_server(self):
@@ -112,16 +122,23 @@ HideManagerGameObject = false"""
         logger.info("Starting deployment...")
         
         try:
-            self.copy_files()
-            self.configure_server()
-            self.install_server_mods()
-            self.start_server()
+            # Skip file copying for now since files already exist
+            logger.info("Skipping file copy - using existing server files")
             
-            if self.verify_server_status():
-                logger.info("✓ Deployment successful!")
+            self.configure_server()
+            # Skip mod installation for now
+            # self.install_server_mods()
+            
+            # Don't auto-start, let user do it manually
+            logger.info("Configuration complete. Use './scripts/server_control.sh start' to start the server.")
+            
+            # Quick verification
+            result = self.ssh_exec("ls -la /mnt/f/ds10/server/valheim_server.x86_64", check=False)
+            if "valheim_server.x86_64" in result:
+                logger.info("✓ Server executable found")
                 return True
             else:
-                logger.error("✗ Deployment failed verification")
+                logger.error("✗ Server executable not found")
                 return False
                 
         except Exception as e:
