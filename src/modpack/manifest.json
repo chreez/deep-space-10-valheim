@@ -1,0 +1,26 @@
+{
+  "name": "deep.space.10",
+  "version": "1.0.0",
+  "author": "deep.space.10 Team",
+  "description": "Valheim modpack for deep.space.10 server",
+  "valheim_version": "0.217.46",
+  "bepinex_version": "5.4.22.0",
+  "mods": [
+    {
+      "name": "HookGenPatcher",
+      "version": "0.0.5.0",
+      "enabled": true,
+      "required": true
+    },
+    {
+      "name": "Jotunn",
+      "version": "2.15.2",
+      "enabled": true,
+      "required": true
+    }
+  ],
+  "config_files": [
+    "BepInEx/config/BepInEx.cfg",
+    "BepInEx/config/Jotunn.cfg"
+  ]
+}

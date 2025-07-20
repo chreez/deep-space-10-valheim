@@ -1,0 +1,12 @@
+{
+  "server_name": "deep.space.10",
+  "world_name": "DeepSpace10",
+  "password": "changeme123",
+  "public": false,
+  "port": 2456,
+  "save_interval": 1800,
+  "backup_short": 7200,
+  "backup_long": 43200,
+  "crossplay": true,
+  "preset": "normal"
+}

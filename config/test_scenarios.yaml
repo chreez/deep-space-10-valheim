@@ -1,0 +1,26 @@
+test_scenarios:
+  server_startup:
+    - check_process_running
+    - check_ports_listening
+    - check_log_output
+    
+  mod_loading:
+    - verify_bepinex_installed
+    - check_plugins_loaded
+    - validate_mod_configs
+    
+  client_connection:
+    - test_server_discovery
+    - test_authentication
+    - test_world_sync
+    
+  performance:
+    - check_memory_usage
+    - check_cpu_usage
+    - check_disk_space
+    
+timeouts:
+  server_startup: 120
+  mod_loading: 60
+  client_connection: 30
+  performance: 10
