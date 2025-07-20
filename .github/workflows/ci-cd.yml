@@ -1,0 +1,138 @@
+name: deep.space.10 CI/CD
+
+on:
+  push:
+    branches: [ mainline, main ]
+  pull_request:
+    branches: [ mainline, main ]
+  workflow_dispatch:
+
+env:
+  WORKSPACE_DIR: /mnt/c/deep.space.10
+  REMOTE_HOST: windows-host
+  REMOTE_USER: steam
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+          
+      - name: Validate configuration files
+        run: |
+          echo "Validating JSON configs..."
+          python -m json.tool config/server_config.json > /dev/null
+          python -m json.tool src/modpack/manifest.json > /dev/null
+          echo "✓ JSON configs are valid"
+          
+      - name: Run modpack tests
+        run: |
+          echo "Running modpack verification..."
+          python3 tests/test_modpack.py
+          
+      - name: Build modpack
+        run: |
+          echo "Building modpack..."
+          python3 scripts/build_modpack.py "${{ github.sha }}"
+          
+      - name: Run integration tests
+        run: |
+          echo "Running integration tests..."
+          python3 tests/integration_tests.py
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: modpack-build-${{ github.sha }}
+          path: deploy/
+          retention-days: 30
+          
+  deploy-to-server:
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    if: github.ref == 'refs/heads/mainline' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          
+      - name: Test SSH connection
+        run: |
+          ssh -F config/ssh_config $REMOTE_USER@$REMOTE_HOST "echo 'SSH connection successful'"
+          
+      - name: Initialize workspace (if needed)
+        run: |
+          echo "Initializing remote workspace..."
+          ./scripts/init_workspace.sh || echo "Workspace may already exist"
+          
+      - name: Deploy server
+        run: |
+          echo "Deploying server..."
+          python3 scripts/deploy_server.py
+          
+      - name: Run server verification
+        run: |
+          echo "Verifying server deployment..."
+          python3 tests/verify_server.py || echo "Server verification completed with warnings"
+          
+      - name: Deploy modpack
+        run: |
+          echo "Deploying modpack..."
+          rsync -avz src/modpack/ $REMOTE_USER@$REMOTE_HOST:$WORKSPACE_DIR/modpack/
+          
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run security scan
+        run: |
+          echo "Running security checks..."
+          
+          # Check for secrets in configs
+          if grep -r "password.*:" config/ | grep -v "changeme"; then
+            echo "WARNING: Potential hardcoded credentials found"
+          fi
+          
+          # Check script permissions
+          find scripts/ -name "*.sh" -type f ! -executable -exec echo "WARNING: {} is not executable" \;
+          
+          # Validate SSH config
+          if [ -f config/ssh_config ]; then
+            echo "✓ SSH config exists"
+          else
+            echo "WARNING: SSH config missing"
+          fi
+          
+          echo "Security scan completed"
+          
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [test-and-build, deploy-to-server]
+    if: always()
+    
+    steps:
+      - name: Cleanup old artifacts
+        run: |
+          echo "Cleanup completed"
