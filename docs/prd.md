@@ -188,30 +188,82 @@ mods/
 ## 🖥️ Server Setup & Management
 
 ### Server Requirements
-- Dedicated machine or VPS with 4GB+ RAM
-- Windows or Linux OS
+- Windows host with WSL2 enabled
+- Docker installed (Windows or WSL2)
+- 4GB+ RAM available for container
 - Port forwarding: 2456-2458 UDP
-- Static IP or Dynamic DNS service
+- E: drive or equivalent for persistent storage
 
-### Server Installation
-1. Install Valheim Dedicated Server via Steam Tools
-2. Install BepInEx for server
-3. Copy deep.space.10 modpack to server
-4. Configure server settings
-5. Set up auto-restart scripts
+### Docker-First Server Installation
+The server runs in a containerized environment for reliability and isolation:
 
-### Server Launch Script
-```batch
-@echo off
-echo ╔══════════════════════════════════════════════╗
-echo ║    deep.space.10 Server Launcher             ║
-echo ╚══════════════════════════════════════════════╝
-echo.
-echo [..] Starting Valheim Server...
-echo [!!] ▲ Server Name: deep.space.10
-echo [!!] ▲ Port: 2456
-echo.
-start valheim_server.exe -nographics -batchmode -name "deep.space.10" -port 2456 -world "deep_space_10" -password "YourPasswordHere" -public 0
+1. **Environment Configuration**
+   - Create `.env` file with server credentials (git-ignored)
+   - Configure persistent storage paths
+   - Set Steam Game Server Login Token (GSLT)
+
+2. **Docker Container Deployment**
+   ```bash
+   # Load environment variables
+   source .env
+   
+   # Run server container
+   docker run -d --name valheim-server \
+     -p 2456-2458:2456-2458/udp \
+     -v /mnt/e/deep.space.10/server:/config \
+     -e SERVER_NAME="${SERVER_NAME}" \
+     -e WORLD_NAME="${WORLD_NAME}" \
+     -e SERVER_PASS="${SERVER_PASS}" \
+     -e PUBLIC="${PUBLIC}" \
+     -e SERVER_TOKEN="${SERVER_TOKEN}" \
+     lloesche/valheim-server
+   ```
+
+3. **Server Management Commands**
+   ```bash
+   # Check server status
+   docker ps
+   docker logs -f valheim-server
+   
+   # Stop/restart server
+   docker stop valheim-server
+   docker start valheim-server
+   
+   # Update server
+   docker pull lloesche/valheim-server
+   docker stop valheim-server && docker rm valheim-server
+   # Re-run docker run command above
+   ```
+
+### Server Launch Script (Docker-Based)
+```bash
+#!/bin/bash
+echo "╔══════════════════════════════════════════════╗"
+echo "║    deep.space.10 Docker Server Launcher     ║"
+echo "╚══════════════════════════════════════════════╝"
+echo
+echo "[..] Starting containerized Valheim Server..."
+echo "[!!] ▲ Server Name: ${SERVER_NAME}"
+echo "[!!] ▲ Port: ${SERVER_PORT}"
+echo "[!!] ▲ World: ${WORLD_NAME}"
+echo
+
+# Load environment variables
+source .env
+
+# Start container
+docker run -d --name "${CONTAINER_NAME}" \
+  -p "${PORT_RANGE}:${PORT_RANGE}/udp" \
+  -v "${SERVER_DATA_PATH}:/config" \
+  -e SERVER_NAME="${SERVER_NAME}" \
+  -e WORLD_NAME="${WORLD_NAME}" \
+  -e SERVER_PASS="${SERVER_PASS}" \
+  -e PUBLIC="${PUBLIC}" \
+  -e SERVER_TOKEN="${SERVER_TOKEN}" \
+  "${DOCKER_IMAGE}"
+
+echo "[OK] ✓ Server container started"
+echo "[..] ◦ Use 'docker logs -f ${CONTAINER_NAME}' to monitor"
 ```
 
 ### Server-Client Sync
@@ -221,10 +273,11 @@ start valheim_server.exe -nographics -batchmode -name "deep.space.10" -port 2456
 - Config sync handled by BepInEx
 
 ### Server Maintenance
-- Regular world backups (daily recommended)
-- Log rotation to prevent disk fill
-- Monitor performance metrics
-- Update procedure for mods
+- **Automated backups**: Container volumes ensure persistent data
+- **Log management**: Docker handles log rotation automatically
+- **Performance monitoring**: Use `docker stats valheim-server`
+- **Update procedure**: Pull new image, recreate container
+- **Mod updates**: Update modpack and rebuild container volume
 
 ## 🔮 Future Vision
 

@@ -1,37 +1,37 @@
 # deep.space.10 Server Setup Specification
 
 ## 🎯 Overview
-Complete automation specification for setting up a deep.space.10 Valheim server using existing tooling and Claude Code CLI integration.
+Complete automation specification for setting up a deep.space.10 Valheim server using Docker containers and secure environment management with Claude Code CLI integration.
 
 ## 🏗️ Architecture Integration
 
-### Hybrid Ubuntu/Windows Environment
+### Docker-First Environment
 ```
-Local macOS           →    Ubuntu WSL2         →    Windows Host
-├── ssh_windows_wsl   →    Python scripts      →    .bat launchers
-├── deploy_server.py  →    File management     →    Steam/SteamCMD
-├── server_control.sh →    Server lifecycle    →    Valheim executable
-└── server_control.sh →    Ubuntu commands     →    Windows processes
+Local macOS           →    Windows Host (WSL2)    →    Docker Container
+├── ssh_windows_wsl   →    Docker commands        →    Valheim Server
+├── .env config       →    Volume mounts          →    Persistent data
+├── deploy scripts    →    Container lifecycle    →    BepInEx + Mods
+└── health checks     →    Container monitoring   →    Server validation
 ```
 
-### Tool Ecosystem
+### Simplified Tool Ecosystem
 ```
-Local Development      →    Ubuntu WSL2 Setup       →    Windows Execution
-├── ssh_windows_wsl    →    SSH to Ubuntu          →    Execute .bat files
-├── network scanning   →    File sync via rsync    →    Windows file paths
-├── server_control.sh  →    Ubuntu shell commands  →    cmd.exe/.bat scripts
-├── deploy_server.py   →    Python deployment      →    Windows service files
-└── health_check.py    →    Status monitoring      →    Server health reports
+Local Development      →    WSL2 Docker Host       →    Container Execution
+├── ssh_windows_wsl    →    Docker run/stop        →    lloesche/valheim-server
+├── .env management    →    Environment variables  →    Server configuration
+├── volume mounting    →    /mnt/e/ persistence    →    World/mod data
+└── health_check.py    →    Container monitoring   →    Service validation
 ```
 
 ### Claude + Dotfiles Integration
 ```bash
 # Available via dotfiles system
 ~/.dotfiles/bin/ssh_windows_wsl              # Windows/WSL connection
-~/.dotfiles/bin/network_drive_manager         # File management
-# Project-specific tools (Ubuntu environment)
-./scripts/server_control.sh                  # Server lifecycle (Ubuntu → Windows)
-./scripts/deploy_server.py                   # Deployment automation (Ubuntu → Windows)
+~/.dotfiles/bin/sync_windows_wsl             # File synchronization
+# Project-specific tools (Docker-focused)
+./scripts/docker_deploy.sh                   # Container deployment
+./scripts/server_control.sh                  # Docker container lifecycle
+./scripts/health_check.py                    # Container health monitoring
 ```
 
 ## 📋 Setup Prerequisites
@@ -44,164 +44,191 @@ Local Development      →    Ubuntu WSL2 Setup       →    Windows Execution
 
 ### Remote Host Requirements
 - **Windows 10/11 Host:**
-  - Steam client installed on Windows
-  - Valheim dedicated server files
-  - Linux server executable (running in WSL2)
-  - File paths using E: drive (/mnt/e/)
-- **WSL2 Ubuntu Environment:**
+  - WSL2 enabled and configured
+  - Docker installed (Docker Desktop or WSL2 Docker)
+  - E: drive or persistent storage mounted as /mnt/e/
+  - Ports 2456-2458 UDP forwarded
+- **WSL2 Environment:**
   - SSH server configured for remote access
-  - Python 3.8+ for deployment scripts
-  - rsync for file synchronization
+  - Docker daemon running
   - Access to Windows filesystem via /mnt/e/
+  - Environment file (.env) with secure credentials
 
 ## 🚀 Automated Setup Process
 
-### Phase 1: Connection Establishment
+### Phase 1: Connection & Environment Setup
 ```bash
 # Claude can execute these steps automatically
 ~/.dotfiles/bin/ssh_windows_wsl               # Test connection
-./scripts/server_control.sh status           # Verify remote access
+~/.dotfiles/bin/ssh_windows_wsl --command "docker --version"  # Verify Docker
+source .env                                   # Load environment variables
 ```
 
 **Claude Actions:**
 1. Test SSH connectivity using dotfiles tool
-2. Verify remote host accessibility
-3. Scan network if primary IP fails
-4. Report connection status
+2. Verify Docker is running on remote host
+3. Load secure environment configuration
+4. Validate .env file contains required variables
 
-### Phase 2: Environment Preparation
+### Phase 2: Storage & Container Preparation
 ```bash
-# Ubuntu WSL2 environment setup
-ssh chris@windows-host "mkdir -p /mnt/e/deep.space.10/{server,backups,logs}"
-ssh chris@windows-host "mkdir -p /mnt/e/deep.space.10/server/BepInEx/{plugins,config}"
+# Create persistent storage directories
+~/.dotfiles/bin/ssh_windows_wsl --command "mkdir -p ${SERVER_DATA_PATH}/{config,worlds,backups,logs}"
+~/.dotfiles/bin/ssh_windows_wsl --command "mkdir -p ${SERVER_DATA_PATH}/config/BepInEx/{plugins,config}"
+
+# Pull Docker image
+~/.dotfiles/bin/ssh_windows_wsl --command "docker pull ${DOCKER_IMAGE}"
 ```
 
 **Claude Actions:**
-1. Create Windows directory structure via WSL2 (/mnt/e/deep.space.10)
-2. Set appropriate file permissions for cross-platform access
-3. Verify Valheim dedicated server files
-4. Ensure Linux executable has proper permissions
+1. Create persistent storage structure on E: drive via WSL2
+2. Set up BepInEx directories for mod support
+3. Pull latest Valheim server Docker image
+4. Verify storage permissions and accessibility
 
-### Phase 3: Server Installation
+### Phase 3: Container Deployment
 ```bash
-# Server installation approach
-# Copy from existing installation or use DepotDownloader
-ssh chris@windows-host "cp -r /path/to/valheim/server/* /mnt/e/deep.space.10/server/"
-
-# Ensure Linux server executable is present
-ssh chris@windows-host "chmod +x /mnt/e/deep.space.10/server/valheim_server.x86_64"
+# Deploy server container with environment variables
+~/.dotfiles/bin/ssh_windows_wsl --command "
+docker run -d --name ${CONTAINER_NAME} \
+  -p ${PORT_RANGE}:${PORT_RANGE}/udp \
+  -v ${SERVER_DATA_PATH}:/config \
+  -e SERVER_NAME='${SERVER_NAME}' \
+  -e WORLD_NAME='${WORLD_NAME}' \
+  -e SERVER_PASS='${SERVER_PASS}' \
+  -e PUBLIC=${PUBLIC} \
+  -e SERVER_TOKEN='${SERVER_TOKEN}' \
+  ${DOCKER_IMAGE}
+"
 ```
 
 **Claude Actions:**
-1. Check for existing Valheim dedicated server in Windows Steam
-2. Copy from Steam library OR download via SteamCMD
-3. Validate installation integrity
-4. Install BepInEx framework
-5. Generate Windows .bat files for server control
+1. Deploy Docker container with secure environment variables
+2. Mount persistent storage volumes
+3. Configure network ports (2456-2458 UDP)
+4. Validate container startup and health
+5. No manual server installation required (handled by container)
 
-### Phase 4: Configuration Deployment
+### Phase 4: Mod & Configuration Deployment
 ```bash
-# Use existing deployment script
-python3 scripts/deploy_server.py
+# Deploy modpack to container volume
+~/.dotfiles/bin/sync_windows_wsl ./src/modpack/ ${SERVER_DATA_PATH}/config/BepInEx/
+
+# Restart container to load mods
+~/.dotfiles/bin/ssh_windows_wsl --command "docker restart ${CONTAINER_NAME}"
 ```
 
 **Claude Actions:**
-1. Execute deployment pipeline
-2. Copy server configurations
-3. Install modpack files
-4. Configure BepInEx settings
+1. Sync modpack files to persistent volume
+2. Deploy BepInEx configuration files
+3. Restart container to load new mods
+4. Validate mod loading in container logs
 
-### Phase 5: Service Configuration
+### Phase 5: Validation & Monitoring Setup
 ```bash
-# Server startup scripts and services
-./scripts/server_control.sh deploy
+# Validate container and server status
+~/.dotfiles/bin/ssh_windows_wsl --command "docker ps | grep ${CONTAINER_NAME}"
+~/.dotfiles/bin/ssh_windows_wsl --command "docker logs -n 50 ${CONTAINER_NAME}"
+
+# Test server connectivity
+./scripts/health_check.py --docker
 ```
 
 **Claude Actions:**
-1. Configure server startup scripts
-2. Set up logging directories
-3. Install health monitoring
-4. Test server startup process
+1. Verify container is running and healthy
+2. Check server logs for successful startup
+3. Validate network connectivity on game ports
+4. Confirm GSLT token authentication
+5. Test client connection capabilities
 
 ## 🛠️ Claude Tool Integration Specification
 
-### SSH Connection Management
+### Environment Variable Management
 ```python
-# Integration with dotfiles ssh tool
-def establish_connection():
-    """Use dotfiles tool for reliable SSH connection"""
-    result = subprocess.run([
-        "~/.dotfiles/bin/ssh_windows_wsl", 
-        "steam", 
-        "192.168.1.236"
-    ], capture_output=True)
-    return result.returncode == 0
+# Load secure environment configuration
+def load_environment():
+    """Load .env file with security validation"""
+    required_vars = ['SERVER_NAME', 'SERVER_PASS', 'SERVER_TOKEN', 'CONTAINER_NAME']
+    env_vars = load_dotenv('.env')
+    missing = [var for var in required_vars if not os.getenv(var)]
+    if missing:
+        raise EnvironmentError(f"Missing required environment variables: {missing}")
+    return env_vars
 ```
 
-### File Transfer Operations
+### Docker Container Management
 ```python
-# Enhanced rsync with progress monitoring
-def sync_server_files():
-    """Sync files with progress reporting"""
-    sync_commands = [
-        "rsync -avz --progress ./src/server/ steam@windows-host:/mnt/c/deep.space.10/server/",
-        "rsync -avz --progress ./src/modpack/ steam@windows-host:/mnt/c/deep.space.10/server/BepInEx/"
-    ]
-    for cmd in sync_commands:
-        yield execute_with_progress(cmd)
+# Docker operations via SSH
+def deploy_container():
+    """Deploy Valheim server container"""
+    load_environment()
+    docker_cmd = f"""
+    docker run -d --name {os.getenv('CONTAINER_NAME')} \
+      -p {os.getenv('PORT_RANGE')}:{os.getenv('PORT_RANGE')}/udp \
+      -v {os.getenv('SERVER_DATA_PATH')}:/config \
+      -e SERVER_NAME='{os.getenv('SERVER_NAME')}' \
+      -e WORLD_NAME='{os.getenv('WORLD_NAME')}' \
+      -e SERVER_PASS='{os.getenv('SERVER_PASS')}' \
+      -e PUBLIC={os.getenv('PUBLIC')} \
+      -e SERVER_TOKEN='{os.getenv('SERVER_TOKEN')}' \
+      {os.getenv('DOCKER_IMAGE')}
+    """
+    return subprocess.run(['~/.dotfiles/bin/ssh_windows_wsl', '--command', docker_cmd])
 ```
 
-### Health Check Integration
+### Container Health Validation
 ```python
-# Comprehensive server validation
-def validate_server_setup():
-    """Run all validation checks"""
+# Container-specific health checks
+def validate_container_health():
+    """Validate Docker container and server status"""
     checks = [
-        "scripts/server_control.sh status",
-        "scripts/server_control.sh status",
-        "scripts/verify_server.py"
+        "docker ps | grep valheim-server",
+        "docker logs --tail 20 valheim-server | grep 'Game server connected'",
+        "netstat -ln | grep :2456"
     ]
-    return all(run_check(check) for check in checks)
+    return all(run_remote_check(check) for check in checks)
 ```
 
 ## 📊 Monitoring & Validation
 
 ### Automated Health Checks
 ```bash
-# Claude can run these periodically
-./scripts/server_control.sh status          # Comprehensive status and health check
-./scripts/verify_server.py                  # Server verification
+# Docker-based health monitoring
+~/.dotfiles/bin/ssh_windows_wsl --command "docker ps --filter name=${CONTAINER_NAME}"
+~/.dotfiles/bin/ssh_windows_wsl --command "docker stats ${CONTAINER_NAME} --no-stream"
+./scripts/health_check.py --docker          # Container-aware validation
 ```
 
 ### Performance Monitoring
 ```bash
-# Resource usage monitoring
-ssh steam@windows-host "wmic process where name='valheim_server.exe' get PageFileUsage,WorkingSetSize"
-ssh steam@windows-host "netstat -an | findstr :245[6-8]"
+# Container resource monitoring
+~/.dotfiles/bin/ssh_windows_wsl --command "docker stats ${CONTAINER_NAME} --no-stream"
+~/.dotfiles/bin/ssh_windows_wsl --command "docker exec ${CONTAINER_NAME} netstat -ln | grep :2456"
 ```
 
 ### Log Analysis
 ```bash
-# Automated log monitoring
-./scripts/tail_logs.sh server               # Real-time logs
-./scripts/tail_logs.sh errors               # Error monitoring
+# Container log monitoring
+~/.dotfiles/bin/ssh_windows_wsl --command "docker logs -f ${CONTAINER_NAME}"
+~/.dotfiles/bin/ssh_windows_wsl --command "docker logs ${CONTAINER_NAME} | grep -i error"
 ```
 
 ## 🔄 Maintenance Automation
 
 ### Update Pipeline
 ```bash
-# Automated server updates
-./scripts/server_control.sh update          # Update via SteamCMD
-python3 scripts/deploy_server.py            # Deploy changes
-./scripts/server_control.sh restart         # Restart services
+# Container-based server updates
+~/.dotfiles/bin/ssh_windows_wsl --command "docker pull ${DOCKER_IMAGE}"
+~/.dotfiles/bin/ssh_windows_wsl --command "docker stop ${CONTAINER_NAME}"
+~/.dotfiles/bin/ssh_windows_wsl --command "docker rm ${CONTAINER_NAME}"
+# Re-deploy with new image using Phase 3 commands
 ```
 
 ### Backup Management
 ```bash
-# Automated backup creation
-./scripts/backup_world.sh                   # World backup
-./scripts/server_control.sh backup          # Quick backup
+# Volume-based backup strategy
+~/.dotfiles/bin/ssh_windows_wsl --command "docker exec ${CONTAINER_NAME} tar -czf /config/backup_\$(date +%Y%m%d_%H%M%S).tar.gz /config/worlds/"
+~/.dotfiles/bin/sync_windows_wsl --from ${SERVER_DATA_PATH}/backup_*.tar.gz ./backups/
 ```
 
 ## 🎮 Claude Interaction Patterns
