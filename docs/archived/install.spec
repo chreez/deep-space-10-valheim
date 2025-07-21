@@ -1,28 +1,35 @@
 ```markdown
 # deep.space.10 Workspace Initialization Spec
+**⚠️ DEPRECATED: Server setup now uses Docker containers (see server-setup.spec)**
 
 ## 🎯 Objective
-Automate the setup, deployment, and verification of deep.space.10 server and modpack distribution system using SSH/WSL access to Windows host machine.
+~~Automate the setup, deployment, and verification of deep.space.10 server and modpack distribution system using SSH/WSL access to Windows host machine.~~
+
+**NEW APPROACH**: This spec is largely superseded by Docker-based deployment. Only modpack building and testing components remain relevant.
 
 ## 🏗️ Architecture Overview
 
 ```
-[Local Dev Machine] ─── SSH/SCP ──→ [Windows Host (WSL)]
+[Local Dev Machine] ─── SSH/Docker ──→ [Windows Host (WSL2)]
         ↓                                    ↓
-[Build Scripts]                    [Valheim Server]
-[Test Suite]                       [BepInEx + Mods]
-[Deploy Tools]                     [Distribution Files]
+[Build Scripts]                    [Docker Container]
+[Test Suite]                       [lloesche/valheim-server]
+[Deploy Tools]                     [Volume Mounts]
 ```
 
 ## 📋 Prerequisites
 
-### Windows Host Requirements
-- Windows 10/11 with WSL2 enabled
-- SSH server running (OpenSSH or WSL SSH)
-- Steam installed with Valheim
-- SteamCMD accessible via PATH
-- Sufficient disk space (20GB+)
-- Ports 2456-2458 open for UDP
+### Windows Host Requirements (Updated for Docker)
+- ~~Windows 10/11 with WSL2 enabled~~ ✓ Still required
+- ~~SSH server running (OpenSSH or WSL SSH)~~ ✓ Still required 
+- ~~Steam installed with Valheim~~ ❌ **OBSOLETE**: Docker handles server
+- ~~SteamCMD accessible via PATH~~ ❌ **OBSOLETE**: Docker handles downloads
+- ~~Sufficient disk space (20GB+)~~ ✓ Still required for volumes
+- ~~Ports 2456-2458 open for UDP~~ ✓ Still required for game connectivity
+
+**NEW REQUIREMENTS**:
+- Docker installed (Docker Desktop or WSL2 Docker)
+- .env file with secure credentials
 
 ### Local Dev Requirements
 - SSH client with key-based auth
@@ -77,11 +84,11 @@ WORKSPACE_DIR="/mnt/c/deep.space.10"
 echo "[..] ◦ Creating remote workspace..."
 ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $WORKSPACE_DIR/{server,modpack,backups,logs}"
 
-echo "[..] ◦ Installing Valheim Dedicated Server..."
-ssh $REMOTE_USER@$REMOTE_HOST "steamcmd +force_install_dir $WORKSPACE_DIR/server +login anonymous +app_update 896660 validate +quit"
+echo "[..] ◦ Installing Docker container..."
+ssh $REMOTE_USER@$REMOTE_HOST "docker pull lloesche/valheim-server"
 
-echo "[..] ◦ Setting up BepInEx..."
-# Download and extract BepInEx to server
+echo "[..] ◦ Setting up persistent storage..."
+ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p /mnt/e/deep.space.10/server/{config,worlds,backups}"
 
 echo "[OK] ✓ Workspace initialized"
 ```
@@ -131,9 +138,9 @@ def build_modpack(version):
 # verify_server.py
 class ServerTests:
     def test_server_running(self):
-        """Check if server process is active"""
-        result = ssh_exec("tasklist | findstr valheim_server")
-        assert "valheim_server.exe" in result
+        """Check if Docker container is active"""
+        result = ssh_exec("docker ps | grep valheim-server")
+        assert "valheim-server" in result
     
     def test_port_listening(self):
         """Verify game ports are open"""
@@ -142,10 +149,10 @@ class ServerTests:
             assert "LISTENING" in result
     
     def test_mod_loading(self):
-        """Check BepInEx log for mod initialization"""
-        log = ssh_exec("type $WORKSPACE_DIR/server/BepInEx/LogOutput.log")
+        """Check Docker container logs for mod initialization"""
+        log = ssh_exec("docker logs valheim-server")
         assert "deep.space.10" in log
-        assert "plugins loaded" in log
+        assert "BepInEx" in log
     
     def test_client_connection(self):
         """Attempt client connection to verify"""
