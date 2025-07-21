@@ -26,34 +26,44 @@ class HealthMonitor:
         """Execute command on remote host via SSH"""
         full_command = [
             os.path.expanduser("~/.dotfiles/bin/ssh_windows_wsl"),
-            self.remote_user,
-            "192.168.1.236",
-            command
+            "--command", command
         ]
         try:
             result = subprocess.run(full_command, capture_output=True, text=True, check=check, timeout=30)
             # Extract the actual output after the SSH tool messages
             output_lines = result.stdout.strip().split('\n')
             actual_output = []
-            capture = False
-            for line in output_lines:
-                if line.startswith("🚀 Executing command"):
-                    capture = True
-                    continue
-                if capture:
-                    actual_output.append(line)
-            stdout = '\n'.join(actual_output) if actual_output else result.stdout.strip()
+            
+            # Find the last occurrence of "🚀 Executing command" line
+            last_exec_index = -1
+            for i, line in enumerate(output_lines):
+                if line.startswith("🚀 Executing command") and ":" in line:
+                    last_exec_index = i
+            
+            # Capture everything after the last execution line
+            if last_exec_index >= 0 and last_exec_index + 1 < len(output_lines):
+                actual_output = output_lines[last_exec_index + 1:]
+            
+            stdout = '\n'.join(actual_output) if actual_output else ""
             return stdout, result.stderr.strip(), result.returncode
         except subprocess.TimeoutExpired:
             return "", "Command timed out", 1
         except Exception as e:
             return "", str(e), 1
     
+    def validate_ssh_connection(self):
+        """Validate SSH connection before health checks"""
+        stdout, stderr, returncode = self.ssh_exec("echo 'connection_test'", check=False)
+        return returncode == 0 and "connection_test" in stdout
+    
     def check_process_running(self):
         """Check if server process is running"""
-        stdout, stderr, returncode = self.ssh_exec("ps aux | grep -v grep | grep valheim_server.x86_64", check=False)
+        stdout, stderr, returncode = self.ssh_exec(
+            "ps aux | grep valheim_server.x86_64 | grep -v grep", 
+            check=False
+        )
         
-        if returncode == 0 and "valheim_server.x86_64" in stdout:
+        if returncode == 0 and stdout.strip() and "valheim_server.x86_64" in stdout:
             # Extract process info from ps output
             lines = stdout.split('\n')
             for line in lines:
@@ -69,7 +79,8 @@ class HealthMonitor:
                             "cpu_usage": cpu + "%",
                             "memory_usage": memory + "%"
                         }
-            return {"status": "running", "pid": "unknown", "memory_usage": "unknown"}
+            # If we get here, the grep found something but no valid process line
+            return {"status": "not_running"}
         else:
             return {"status": "not_running"}
     
@@ -78,8 +89,8 @@ class HealthMonitor:
         port_status = {}
         
         for port in [2456, 2457, 2458]:
-            stdout, stderr, returncode = self.ssh_exec(f"netstat -tuln | grep :{port}", check=False)
-            port_status[port] = str(port) in stdout
+            stdout, stderr, returncode = self.ssh_exec(f"ss -tlnp | grep :{port}", check=False)
+            port_status[port] = returncode == 0 and stdout.strip() and str(port) in stdout
             
         return port_status
     
