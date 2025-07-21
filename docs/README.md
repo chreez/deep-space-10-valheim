@@ -37,9 +37,10 @@ Historical documentation and deprecated specifications are stored in the [`archi
 ## 🐳 Docker-First Approach
 
 The current system is built around containerized deployment:
-- **Server**: `lloesche/valheim-server` Docker image
+- **Server**: `lloesche/valheim-server` Docker image with BepInEx support
 - **Storage**: Persistent volumes mounted to `/mnt/e/deep.space.10/server`
-- **Configuration**: Environment variables from `.env` file
+- **Configuration**: Environment variables from `.env` file including `BEPINEX=true`
+- **Mod Directory**: `/mnt/e/deep.space.10/server/BepInEx/plugins/<modname>`
 - **Management**: SSH commands via `~/.dotfiles/bin/ssh_windows_wsl`
 
 ---

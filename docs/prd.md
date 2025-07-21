@@ -207,7 +207,7 @@ The server runs in a containerized environment for reliability and isolation:
    # Load environment variables
    source .env
    
-   # Run server container
+   # Run server container with BepInEx mod support
    docker run -d --name valheim-server \
      -p 2456-2458:2456-2458/udp \
      -v /mnt/e/deep.space.10/server:/config \
@@ -216,6 +216,7 @@ The server runs in a containerized environment for reliability and isolation:
      -e SERVER_PASS="${SERVER_PASS}" \
      -e PUBLIC="${PUBLIC}" \
      -e SERVER_TOKEN="${SERVER_TOKEN}" \
+     -e BEPINEX=true \
      lloesche/valheim-server
    ```
 
@@ -251,7 +252,7 @@ echo
 # Load environment variables
 source .env
 
-# Start container
+# Start container with BepInEx support
 docker run -d --name "${CONTAINER_NAME}" \
   -p "${PORT_RANGE}:${PORT_RANGE}/udp" \
   -v "${SERVER_DATA_PATH}:/config" \
@@ -260,10 +261,36 @@ docker run -d --name "${CONTAINER_NAME}" \
   -e SERVER_PASS="${SERVER_PASS}" \
   -e PUBLIC="${PUBLIC}" \
   -e SERVER_TOKEN="${SERVER_TOKEN}" \
+  -e BEPINEX=true \
   "${DOCKER_IMAGE}"
 
 echo "[OK] ✓ Server container started"
 echo "[..] ◦ Use 'docker logs -f ${CONTAINER_NAME}' to monitor"
+```
+
+### Mod Installation & Management
+
+#### Directory Structure for Server Mods
+```
+/mnt/e/deep.space.10/server
+├── BepInEx
+│   └── plugins
+│       └── <modname>
+```
+
+#### Installing Mods via Command Line
+```bash
+# Navigate to plugins directory
+cd /mnt/e/deep.space.10/server/BepInEx/plugins
+
+# Download mod from Thunderstore (example: AzuClock)
+curl -L -o AzuClock.zip "https://thunderstore.io/package/download/Azumatt/AzuClock/1.0.5/"
+unzip AzuClock.zip
+rm AzuClock.zip
+
+# Verify mod loading in server logs
+docker logs valheim-server | grep "Loading \["
+# Expected output: "[Info   :   BepInEx] Loading [AzuClock 1.0.5]"
 ```
 
 ### Server-Client Sync
