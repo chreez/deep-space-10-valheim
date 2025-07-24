@@ -5,6 +5,11 @@ echo "║      deep.space.10 Server Control Tool       ║"
 echo "║         Where Vikings Meet the Void          ║"
 echo "╚══════════════════════════════════════════════╝"
 
+# Load environment variables
+if [ -f ".env" ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Configuration
 REMOTE_HOST="192.168.1.236"
 REMOTE_USER="chris"
@@ -161,13 +166,14 @@ case "$ACTION" in
         
         # Start container in headless mode (non-blocking)
         START_CMD="docker run -d --name $CONTAINER_NAME \
-          -p 2456-2458:2456-2458/udp \
+          -p 27500-27502:27500-27502/udp \
           -v $WORKSPACE_DIR/server:/config \
-          -e SERVER_NAME=\"DeepSpace10\" \
-          -e WORLD_NAME=\"DeepSpace10\" \
-          -e SERVER_PASS=\"\${SERVER_PASS:-changeme123}\" \
-          -e PUBLIC=\"0\" \
-          -e SERVER_TOKEN=\"\${SERVER_TOKEN}\" \
+          -e SERVER_NAME=\"$SERVER_NAME\" \
+          -e WORLD_NAME=\"$WORLD_NAME\" \
+          -e SERVER_PASS=\"$SERVER_PASS\" \
+          -e SERVER_PORT=\"$SERVER_PORT\" \
+          -e PUBLIC=\"$PUBLIC\" \
+          -e SERVER_TOKEN=\"$SERVER_TOKEN\" \
           -e BEPINEX=true \
           lloesche/valheim-server"
         
@@ -205,12 +211,14 @@ case "$ACTION" in
         
         # Start in foreground mode
         DEBUG_CMD="docker run --rm -it --name $CONTAINER_NAME \
-          -p 2456-2458:2456-2458/udp \
+          -p 27500-27502:27500-27502/udp \
           -v $WORKSPACE_DIR/server:/config \
-          -e SERVER_NAME=\"DeepSpace10-Debug\" \
-          -e WORLD_NAME=\"DeepSpace10\" \
-          -e SERVER_PASS=\"changeme123\" \
-          -e PUBLIC=\"0\" \
+          -e SERVER_NAME=\"$SERVER_NAME-Debug\" \
+          -e WORLD_NAME=\"$WORLD_NAME\" \
+          -e SERVER_PASS=\"$SERVER_PASS\" \
+          -e SERVER_PORT=\"$SERVER_PORT\" \
+          -e PUBLIC=\"$PUBLIC\" \
+          -e SERVER_TOKEN=\"$SERVER_TOKEN\" \
           -e BEPINEX=true \
           lloesche/valheim-server"
         

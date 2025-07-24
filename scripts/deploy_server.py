@@ -105,7 +105,7 @@ HideManagerGameObject = false"""
                 return False
                 
             # Check if ports are listening
-            for port in [2456, 2457, 2458]:
+            for port in [27500, 27501, 27502]:
                 result = self.ssh_exec(f"netstat -an | findstr :{port}", check=False)
                 if "LISTENING" not in result:
                     logger.warning(f"Port {port} not listening")

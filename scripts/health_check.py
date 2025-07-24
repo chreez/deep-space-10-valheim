@@ -88,7 +88,7 @@ class HealthMonitor:
         """Check if game ports are listening"""
         port_status = {}
         
-        for port in [2456, 2457, 2458]:
+        for port in [27500, 27501, 27502]:
             stdout, stderr, returncode = self.ssh_exec(f"ss -tlnp | grep :{port}", check=False)
             port_status[port] = returncode == 0 and stdout.strip() and str(port) in stdout
             

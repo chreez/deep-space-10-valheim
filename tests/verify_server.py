@@ -54,7 +54,7 @@ class ServerTests:
         logger.info("Testing: Port availability")
         success = True
         
-        for port in [2456, 2457, 2458]:
+        for port in [27500, 27501, 27502]:
             stdout, stderr, returncode = self.ssh_exec(f"netstat -an | findstr :{port}", check=False)
             if "LISTENING" in stdout:
                 logger.info(f"✓ Port {port} is listening")
@@ -96,7 +96,7 @@ class ServerTests:
                 # Test TCP connection to game port
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.settimeout(5)
-                result = sock.connect_ex((server_ip, 2456))
+                result = sock.connect_ex((server_ip, 27500))
                 sock.close()
                 
                 if result == 0:
