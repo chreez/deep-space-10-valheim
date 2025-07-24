@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-deep.space.10 Modpack Builder
-Creates distribution packages for the modpack.
+deep.space.10 Modpack Builder (DEPRECATED)
+
+NOTE: This script is deprecated. Mod management is now handled via r2modman.
+Profile Code: 01983a2e-22a5-26ae-35a4-8858c59c0849
+
+This script is kept for reference but should not be used for new deployments.
 """
 
 import json

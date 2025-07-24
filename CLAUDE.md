@@ -2,60 +2,46 @@
 
 - Make logical commits between changes always
 
-## Mod Documentation Format
+## Mod Management (r2modman)
 
-When mods are added, removed, or otherwise modified, always update the README.md "MODPACK CONTENTS" section with this exact format:
+**IMPORTANT**: Mods are no longer maintained in this repository. All mod management is handled through r2modman.
 
-```
-- **ModName** [Tag] - Brief description under 200 characters
-```
+**r2modman Profile Code**: `01983a2e-22a5-26ae-35a4-8858c59c0849`
 
-Where:
-- **ModName**: The exact mod name in bold
-- [Tag]: One of [Server], [Client], or [Both] indicating installation requirements
-- Description: Concise explanation of what the mod does (< 200 chars)
+### Mod Deployment Process
 
-Organize mods by these categories:
-1. Framework & Dependencies
-2. Building & Construction  
-3. Inventory & Storage
-4. Gameplay & Content
-5. Quality of Life
-6. Environment & Nature
-7. Economy & Trading
-8. Server Administration
+1. **Configure mods in r2modman** using the profile code above
+2. **Export BepInEx folder** from r2modman when ready to deploy
+3. **Manual server deployment** - copy exported folder to server
+4. **Update profile code** in documentation if configuration changes
 
-Keep entries alphabetically sorted within each category for consistency.
+### Documentation Updates
 
-## Mod Changelog Format
+When the r2modman profile is updated:
 
-When mods are added, removed, or modified, always:
+1. Update the profile code in README.md and CLAUDE.md
+2. Add changelog entry noting profile updates
+3. Test deployment to ensure compatibility
+4. Document any manual configuration steps required
 
-1. Update the "MODPACK CONTENTS" section with the current mod list
-2. Add a new entry to the "MODPACK CHANGELOG" section with:
-   - Version number (increment appropriately)
-   - Date in YYYY-MM-DD format
-   - List of changes under **Added X new mods:**, **Removed X mods:**, or **Updated X mods:**
-   - Each mod entry must include:
-     - **ModName** - Brief description of features/changes (< 200 chars)
+**Note**: Individual mod documentation is maintained by r2modman. This repository focuses on server infrastructure and deployment.
 
-Example changelog entry:
-```
-### ◆ Version X.X.X - YYYY-MM-DD
-**Added 3 new mods:**
-- **ExampleMod** - Adds new crafting recipes and improves inventory management
-- **AnotherMod** - Enhanced building system with snap points and rotation helpers
-- **ThirdMod** - Quality of life improvements for farming and resource gathering
-```
+## Client Installation (r2modman)
 
-## Windows Client Installation Path
+**Client Setup**: Use r2modman for all client mod installation
 
-The Valheim client installation on the Windows host is located at:
+**Profile Code**: `01983a2e-22a5-26ae-35a4-8858c59c0849`
+
+### Installation Steps
+
+1. **Install r2modman** from Thunderstore
+2. **Select Valheim** as the game
+3. **Import profile** using the code above
+4. **Launch game via r2modman** to ensure mods load correctly
+
+### Windows Client Path (Reference Only)
+
 - **WSL Path**: `/mnt/d/SteamLibrary/steamapps/common/Valheim`
 - **Windows Path**: `D:\SteamLibrary\steamapps\common\Valheim`
 
-When deploying mods to the client:
-1. Backup existing BepInEx directory first
-2. Copy dist/BepInEx.zip to temp location
-3. Extract to client directory
-4. This is the same modpack that goes to the server
+**Note**: Direct file manipulation is no longer recommended. Use r2modman for all client-side mod management.

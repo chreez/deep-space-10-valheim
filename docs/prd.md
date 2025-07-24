@@ -1,15 +1,15 @@
 # deep.space.10 – System Architecture & Vision
 
 ## 🎯 Mission
-Create a simple, foolproof Valheim modpack distribution system that doesn't require mod managers or accounts.
+Provide infrastructure and server management for the deep.space.10 Valheim experience. Mod distribution is handled via r2modman for optimal compatibility.
 
 ## 🏗️ Architecture
 
 ### Core Components
 ```
-[User Downloads ZIP] → [Extracts to Folder] → [Runs install.cmd] → [Plays Modded Valheim]
-                                                        ↓
-                                            [Manual Copy Alternative]
+[User Gets Profile Code] → [Installs r2modman] → [Imports Profile] → [Plays Modded Valheim]
+                                    ↓
+                          [r2modman Handles All Mods]
 ```
 
 ### File Flow
@@ -166,18 +166,17 @@ mods/
 ## 🎮 User Journey
 
 ### First Time User
-1. Downloads deep.space.10-modpack.zip
-2. Extracts to Downloads folder
-3. Reads README.md
-4. Runs install.cmd
-5. Launches Valheim
-6. Joins deep.space.10 server
+1. Installs r2modman
+2. Gets profile code: `01983a2e-22a5-26ae-35a4-8858c59c0849`
+3. Imports profile in r2modman
+4. Launches Valheim via r2modman
+5. Joins deep.space.10 server
 
 ### Returning User (Update)
-1. Downloads new version
-2. Runs install.cmd
-3. Configs preserved
-4. New mods added
+1. Gets updated profile code (if changed)
+2. Updates profile in r2modman
+3. Configs preserved by r2modman
+4. New mods added automatically
 5. Continues playing
 
 ## 💭 Design Philosophy
@@ -425,8 +424,8 @@ docker logs valheim-server | grep "Loading \["
 - "Space Viking" as user reference
 
 ### File Naming Conventions
-- Package: `deep.space.10-modpack-v{version}.zip`
-- Scripts: lowercase with `.cmd` extension
+- Profile Code: `01983a2e-22a5-26ae-35a4-8858c59c0849`
+- Scripts: lowercase with appropriate extension
 - Documentation: UPPERCASE.md (README.md, CHANGELOG.md)
 - Folders: lowercase, no spaces
 

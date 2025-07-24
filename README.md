@@ -12,29 +12,30 @@
 
 ## 🚀 Quick Modpack Installation (Players)
 
-**Complete BepInEx Modpack - 56 Mods + Seasonal Assets**
-
-[Download Latest Modpack](https://github.com/chreez/deep-space-10-valheim/releases)
+**r2modman Profile Code: `01983a2e-22a5-26ae-35a4-8858c59c0849`**
 
 ```
 [ TRANSMISSION INCOMING - MODPACK DEPLOYMENT PROTOCOL ]
 
-▪ 56 Plugin DLLs (Framework, Building, Inventory, Gameplay, Content, QoL)
-▪ 181 Seasonal Texture Assets (Dynamic environmental changes)
-▪ 22 Translation Files (13+ language support)
-▪ 7 Configuration Folders (Extensive customization)
+Mod management is now handled via r2modman for optimal compatibility.
 
-1. [..] ◦ Navigate to [Releases](https://github.com/chreez/deep-space-10-valheim/releases)
-2. [..] ◦ Download the `BepInEx.zip` file
-2. [..] ◦ Extract the archive directly in your BepInEx directory in Valheim
-3. [OK] ✓ Launch Valheim and join deep.space.10 server
+1. [..] ◦ Install r2modman from [Thunderstore](https://www.overwolf.com/app/Thunderstore-r2modman)
+2. [..] ◦ Launch r2modman and select Valheim
+3. [..] ◦ Click "Import Profile" and enter code: 01983a2e-22a5-26ae-35a4-8858c59c0849
+4. [OK] ✓ Launch Valheim via r2modman and join deep.space.10 server
 
 [ END TRANSMISSION ]
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## ▪ MODPACK CONTENTS
+## ▪ MODPACK CONFIGURATION
+
+**r2modman Profile**: `01983a2e-22a5-26ae-35a4-8858c59c0849`
+
+*Note: Mod files are no longer maintained in this repository. All mod management is handled through r2modman for better compatibility and easier updates.*
+
+### ◆ Included Mod Categories
 
 ### ◆ Framework & Dependencies
 - **Jotunn** [Both] - Core modding framework required by many other mods
@@ -107,31 +108,12 @@
 
 ## ▪ MODPACK CHANGELOG
 
-### ◆ Version 2.3.0 - 2025-07-23
-**Added 3 new mods:**
-- **BetterCarts** - Quick detach/reattach carts with configurable key, multi-player cart pushing support, and damage reduction
-- **FastLink** - Quick server connection UI with YAML-based server list for easy joining of favorite servers
-- **Intermission** - Custom loading screen system with community artwork and tips support (replaces ComfyLoadingScreens)
-
-### ◆ Version 2.2.0 - 2025-07-23
-**Added 17 new mods:**
-- **ComfyLoadingScreens** - Custom loading screens with 50+ community artworks for immersive loading experience
-- **ConfigurationManager** - In-game configuration editor allowing real-time mod settings adjustment
-- **Groups** - Party system enabling shared map pins and health bars for cooperative gameplay
-- **PlayerActivity** - Tracks player activity metrics and time played for server statistics
-- **ServersideQoL** - Server-side quality improvements including various gameplay enhancements
-- **Zen.ModLib** - Core library required for all Zen-prefixed mods
-- **ZenBossStone** - Enhanced boss summoning with improved altar mechanics and visual effects
-- **ZenCombat** - Combat system improvements including better hit detection and damage calculations
-- **ZenCompass** - Enhanced compass with customizable markers and distance indicators
-- **ZenConstruction** - Building improvements with snap points and construction helpers
-- **ZenMap** - Improved map features including shared markers and fog of war options
-- **ZenPlayer** - Player stats tracking and progression enhancements with UI improvements
-- **ZenRaids** - Enhanced raid system with configurable difficulty and timing options
-- **ZenRecycle** - Alternative recycling system with customizable material return rates
-- **ZenSign** - Advanced sign system supporting formatting, colors, and larger text
-- **ZenUI** - UI improvements including better inventory management and status displays
-- **ZenUseItem** - Use consumables directly from inventory without hotbar requirements
+### ◆ Version 3.0.0 - 2025-07-24
+**Migration to r2modman:**
+- **Profile Code**: `01983a2e-22a5-26ae-35a4-8858c59c0849`
+- **Management**: Mods now managed via r2modman for better compatibility
+- **Deployment**: Manual deployment using r2modman configurations
+- **Repository**: Mod files removed from git repository to reduce size
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -163,8 +145,7 @@ deep.space.10-workspace/
 ├── config/           # [..] ◦ Configuration matrices
 ├── src/              # [..] ◦ Source artifacts
 │   ├── server/       # ▸ Server deployment files
-│   └── modpack/      # ▸ Complete BepInEx modpack (40 mods + assets)
-│       └── mods/     # ▸ BepInEx structure with plugins/config
+│   └── modpack/      # ▸ Modpack metadata and manifests
 ├── tests/            # [!!] ▲ Validation protocols
 ├── logs/             # [..] ◦ System telemetry
 ├── deploy/           # [OK] ✓ Build artifacts
@@ -178,8 +159,13 @@ deep.space.10-workspace/
 - `./scripts/server_control.sh deploy` - Deploy server files via atomic sync
 - `./scripts/server_control.sh restart` - Restart Docker container (headless)
 
+### ◆ Mod Management
+- **r2modman Profile**: `01983a2e-22a5-26ae-35a4-8858c59c0849`
+- **Manual Deployment**: Mods deployed manually using r2modman
+- **Server Sync**: Copy modpack from r2modman to server as needed
+
 ### ◆ Legacy Operations (Deprecated)
-- `./scripts/build_modpack.py [version]` - Build modpack distribution
+- `./scripts/build_modpack.py [version]` - Replaced by r2modman
 - `./scripts/backup_world.sh [type]` - World backups  
 - `./scripts/tail_logs.sh [log_type]` - Direct log viewing
 
@@ -214,46 +200,43 @@ docker run -d --name valheim-server \
 
 ### ◆ Mod Deployment Protocol
 ```bash
-# [..] ◦ Server mod directory structure (Complete Modpack)
+# [..] ◦ r2modman profile deployment to server
+r2modman Profile Code: 01983a2e-22a5-26ae-35a4-8858c59c0849
+
+# Manual deployment steps:
+# 1. Export BepInEx folder from r2modman
+# 2. Copy to server directory structure:
 /mnt/e/deep.space.10/server
 ├── BepInEx
-│   ├── plugins/                    # 56 mod DLLs
-│   │   ├── AdventureBackpacks.dll
-│   │   ├── EpicLoot.dll
-│   │   ├── Jotunn.dll             # Core framework
-│   │   ├── Seasonality.dll        # Dynamic seasons
-│   │   ├── PlanBuild/             # Advanced building
-│   │   └── Translations/          # 22 translation files
-│   └── config/                     # 7 configuration folders
-│       ├── Seasonality/           # 181 seasonal texture assets
-│       ├── expand_world/          # World generation configs
-│       └── TherzieTranslations/   # Combat mod translations
+│   ├── plugins/                    # Mod DLLs from r2modman
+│   └── config/                     # Configuration from r2modman
 
-# [OK] ✓ Verify complete modpack loading in container logs
+# [OK] ✓ Verify modpack loading in container logs
 docker logs valheim-server | grep "Loading \["
-# Expected: "[Info : BepInEx] Loading [40+ mod entries]"
+# Expected: "[Info : BepInEx] Loading [mod entries]"
 ```
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-## ▪ MODPACK DISTRIBUTION SYSTEM
+## ▪ MODPACK MANAGEMENT SYSTEM
 
-### ◆ Building Modpack Artifacts
+### ◆ r2modman Profile Management
 ```bash
-# [..] ◦ Build current version
-python3 scripts/build_modpack.py
+# r2modman Profile Code
+01983a2e-22a5-26ae-35a4-8858c59c0849
 
-# [..] ◦ Build specific version
-python3 scripts/build_modpack.py "2.1.0"
-
-# [!!] ▲ Test modpack integrity
-python3 tests/test_modpack.py
+# Manual deployment process:
+# 1. Configure mods in r2modman
+# 2. Export BepInEx folder
+# 3. Deploy to server manually
+# 4. Update profile code if needed
 ```
 
-### ◆ Distribution Artifacts
-Built modpacks are deployed to `./deploy/` containing:
-- `deep.space.10-v{version}.zip` - ▸ Main distribution archive
-- `checksums.txt` - ▸ Verification hashes
+### ◆ Deployment Notes
+- Mod files no longer stored in git repository
+- r2modman handles all mod downloads and updates
+- Server deployment is manual process for now
+- Profile code provides consistent mod configuration
 
 ## ▪ VALIDATION PROTOCOLS
 
