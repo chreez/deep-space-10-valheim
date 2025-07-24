@@ -35,3 +35,34 @@ __pycache__/
 # Backups
 *.bak
 *.backup
+
+# Archive files
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# Binary files
+*.dll
+*.exe
+*.so
+*.dylib
+
+# Mod staging areas
+src/modpack/new mods/
+src/modpack/temp/
+src/modpack/staging/
+
+# Deploy artifacts
+deploy/
+
+# World saves
+*.db
+*.fwl
+*.old
+
+# Server data
+/server/
+/data/
