@@ -3,7 +3,7 @@
   "world_name": "DeepSpace10",
   "password": "changeme123",
   "public": false,
-  "port": 2456,
+  "port": 27500,
   "save_interval": 1800,
   "backup_short": 7200,
   "backup_long": 43200,

@@ -16,7 +16,7 @@ cd /d "%SERVER_DIR%"
 
 valheim_server.exe ^
     -name "deep.space.10" ^
-    -port 2456 ^
+    -port 27500 ^
     -world "DeepSpace10" ^
     -password "changeme123" ^
     -public 0 ^
