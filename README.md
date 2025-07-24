@@ -53,7 +53,6 @@
 - **AzuCraftyBoxes** [Both] - Craft from nearby containers without manual inventory management
 - **AzuAutoStore** [Both] - Automatically sort items into appropriate containers
 - **AzuExtendedPlayerInventory** [Both] - Expands player inventory slots
-- **ExtraSlots** [Both] - Additional equipment slots for more gear
 - **QuickStackStore** [Client] - Quick stack items to nearby containers
 - **CraftyCartsRemake** [Both] - Mobile storage carts with crafting capabilities
 - **ZenItemStands** [Both] - Display items on stands and pedestals
@@ -61,8 +60,6 @@
 
 ### ◆ Gameplay & Content
 - **EpicLoot** [Both] - RPG-style loot system with magical item properties
-- **EpicMMOSystem** [Both] - RPG progression system with levels and skills
-- **Monstrum** [Both] - Adds new monsters and creatures to the game
 - **Warfare** [Both] - Combat enhancements and new weapons/armor
 - **Almanac** [Both] - In-game encyclopedia and information system
 - **AlmanacClasses** [Both] - Class system addon for Almanac
@@ -82,9 +79,9 @@
 - **CW_Jesse.BetterNetworking** [Both] - Network optimization for better multiplayer
 - **FastLink** [Client] - Quick server joining UI with YAML configuration for favorite servers
 - **Groups** [Both] - Party system with shared map pins and health bars
-- **Intermission** [Client] - Custom loading screens with community artwork (50+ images)
+
 - **PlayerActivity** [Both] - Tracks player activity and time played
-- **Recycle_N_Reclaim** [Both] - Recycle items to recover materials
+- **Recycle_N_Reclaim** [Both] - Recycle items to recover materials -- replaced by recycle
 - **RockTheBoat** [Both] - Improved boat physics and handling
 - **ServerCharacters** [Server] - Server-side character storage and management
 - **ServersideQoL** [Server] - Server-side quality of life improvements
@@ -101,9 +98,6 @@
 - **BalrondAmazingNature** [Both] - Environmental enhancements and new nature elements
 - **BalrondAmazingNatureResource** [Both] - Additional natural resources and materials
 
-### ◆ Economy & Trading
-- **kg.Marketplace** [Both] - Player trading and marketplace system
-- **MarketStall** [Both] - Physical market stalls for trading
 
 ### ◆ Server Administration
 - **ServerDevcommands** [Server] - Enables admin commands and chat logging for servers
