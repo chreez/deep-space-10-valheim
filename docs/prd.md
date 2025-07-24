@@ -15,8 +15,10 @@ Create a simple, foolproof Valheim modpack distribution system that doesn't requ
 ### File Flow
 ```
 Source (Modpack)                    →    Destination (Valheim)
-/mods/plugins/deep.space.10/*.dll   →    /BepInEx/plugins/deep.space.10/
-/mods/config/*.cfg                  →    /BepInEx/config/ (if not exists)
+/mods/BepInEx/plugins/*.dll         →    /BepInEx/plugins/
+/mods/BepInEx/config/*              →    /BepInEx/config/ (if not exists)
+/mods/manifest.json                 →    Documentation reference
+/mods/install.cmd                   →    Automated installation
 ```
 
 ## 📦 Package Contents
@@ -25,20 +27,71 @@ Source (Modpack)                    →    Destination (Valheim)
 - **README.md** - Clear instructions with screenshots
 - **install.cmd** - Automated installation script
 - **manifest.json** - Mod list and versions
-- **/mods/** - Actual mod files
+- **/mods/** - Complete BepInEx directory structure
+
+### Complete Modpack Structure
+- **40 Plugin DLLs** - Core gameplay modifications
+- **181 Seasonal Assets** - Dynamic environmental textures
+- **22 Translation Files** - 13+ language support
+- **7 Configuration Folders** - Extensive customization options
+- **1 HookGenPatcher Config** - Runtime patching system
 
 ### Optional Additions
 - **uninstall.cmd** - Clean removal script
 - **BepInEx installer** - For zero-dependency setup
 - **verify.cmd** - Check installation integrity
 
+### Current Mod Categories
+
+#### **Framework & Dependencies**
+- **Jotunn** (2.26.0) - Core modding framework
+- **HookGenPatcher** (0.0.4) - Runtime patching system
+- **JsonDotNET** (13.0.4) - JSON processing library
+
+#### **Building & Construction**
+- **PlanBuild** (0.18.2) - Advanced building system
+- **Balrond Construction** (1.2.6) - Additional building options
+- **Balrond Furniture Reborn** (1.1.6) - Decorative furniture
+
+#### **Inventory & Storage**
+- **AzuCraftyBoxes** (1.8.4) - Crafting from nearby containers
+- **AzuAutoStore** (3.0.8) - Automatic item storage
+- **Quick Stack Store Sort** (1.4.13) - Inventory management
+- **ExtraSlots** (1.0.29) - Additional equipment slots
+- **AdventureBackpacks** (1.7.10) - Backpack system
+
+#### **Gameplay Enhancement**
+- **EpicLoot** (0.11.4) - Loot overhaul system
+- **Seasonality** (3.5.9) - Dynamic seasons with 181 texture assets
+- **WackyEpicMMOSystem** (1.9.44) - RPG progression system
+- **ServerCharacters** (1.4.16) - Character persistence
+- **ComfortTweaks** (3.3.9) - Comfort system improvements
+
+#### **Content & Exploration**
+- **MagicalMounts** (2.2.2) - Rideable creatures
+- **Marketplace & Server NPCs** (9.6.0) - Trading system
+- **Monstrum** (1.5.1) - New monsters
+- **Warfare** (1.8.9) - Combat enhancements
+- **Almanac** (3.4.9) - Information system with class support
+
+#### **Quality of Life**
+- **AAA_Crafting** (1.6.6) - Anti-arthritic crafting improvements
+- **PlantEasily** (2.0.3) - Simplified farming
+- **AutoRepair** (5.4.1602) - Automatic item repair
+- **SpeedyPaths** (1.0.8) - Faster movement on paths
+- **BetterNetworking** (2.3.2) - Network optimizations
+
+#### **Nature & Environment**
+- **Balrond Amazing Nature** (1.0.4) - Environmental enhancements
+- **Balrond Amazing Nature Resource** (0.1.2) - Resource additions
+
 ### Adding New Mods to the Package
 To include additional mods in the distribution:
 
 1. **Download the mod** from Thunderstore or other sources
 2. **Extract mod files** to examine structure
-3. **Place DLL files** in `/mods/plugins/deep.space.10/`
-4. **Copy config files** to `/mods/config/` (if any)
+3. **Place DLL files** in `/mods/BepInEx/plugins/`
+4. **Copy config files** to `/mods/BepInEx/config/` (if any)
 5. **Update manifest.json** with mod name and version
 6. **Test installation** on clean Valheim setup
 7. **Document any special requirements** in README
@@ -46,13 +99,13 @@ To include additional mods in the distribution:
 Example structure for adding a mod:
 ```
 mods/
-├── plugins/
-│   └── deep.space.10/
-│       ├── ExistingMod.dll
-│       └── NewMod.dll        ← Add here
-└── config/
-    ├── ExistingMod.cfg
-    └── NewMod.cfg            ← Add config here
+└── BepInEx/
+    ├── plugins/
+    │   ├── ExistingMod.dll
+    │   └── NewMod.dll        ← Add here
+    └── config/
+        ├── ExistingMod.cfg
+        └── NewMod.cfg        ← Add config here
 ```
 
 ## 🛡️ Safety Principles
@@ -274,8 +327,18 @@ echo "[..] ◦ Use 'docker logs -f ${CONTAINER_NAME}' to monitor"
 ```
 /mnt/e/deep.space.10/server
 ├── BepInEx
-│   └── plugins
-│       └── <modname>
+│   ├── plugins/                    # 40 mod DLLs + translations
+│   │   ├── AdventureBackpacks.dll
+│   │   ├── EpicLoot.dll
+│   │   ├── Jotunn.dll             # Core framework
+│   │   ├── Seasonality.dll        # Dynamic seasons
+│   │   ├── PlanBuild/             # Advanced building
+│   │   └── Translations/          # Multilingual support
+│   └── config/                     # 7 configuration folders
+│       ├── Seasonality/           # 181 seasonal assets
+│       ├── expand_world/          # World generation
+│       ├── TherzieTranslations/   # Combat mod translations
+│       └── HookGenPatcher.cfg     # Patcher config
 ```
 
 #### Installing Mods via Command Line
