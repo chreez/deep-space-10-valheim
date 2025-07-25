@@ -117,6 +117,49 @@ Mod management is now handled via r2modman for optimal compatibility.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+## ▪ DEVELOPMENT TOOLS
+
+### ◆ getClientSideMods - Mod Information Tool
+
+Fetch information about Valheim mods from Thunderstore or your local r2modman profile.
+
+#### Default Usage (DS10 Profile)
+```bash
+# List all mods installed in DS10 profile
+./getClientSideMods --profile DS10
+
+# Get JSON output for automation/AI tools
+./getClientSideMods --profile DS10 --silent --format json
+
+# Minimal output (names + versions only)
+./getClientSideMods --profile DS10 --minimal --silent --format json
+
+# Discover GitHub source URLs for profile mods
+./getClientSideMods --profile DS10 --with-source
+```
+
+#### Advanced Usage
+```bash
+# Search entire Thunderstore catalog (8,393+ mods)
+./getClientSideMods --minimal --silent --format json
+
+# Find specific mod with source URL
+./getClientSideMods --filter-mod "ValheimModding-Jotunn" --with-source
+
+# Table format for human reading
+./getClientSideMods --profile DS10 --format table
+```
+
+#### Features
+- **Profile Mode**: Instantly read from Windows r2modman profiles via SSH
+- **Source Discovery**: Find GitHub URLs using 4 different methods
+- **Token Optimization**: `--minimal` reduces output by 77% for AI usage
+- **Alphabetical Sorting**: All output sorted by mod name
+- **Progress Display**: Shows current operation status
+- **Rate Limiting**: 300ms throttle prevents API abuse
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ## ▪ SPACE VIKING COMMAND CENTER
 
 ### ◆ Prerequisites for Server Deployment
