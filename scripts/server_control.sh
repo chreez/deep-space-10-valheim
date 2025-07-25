@@ -174,6 +174,7 @@ case "$ACTION" in
           -e SERVER_PORT=\"$SERVER_PORT\" \
           -e PUBLIC=\"$PUBLIC\" \
           -e SERVER_TOKEN=\"$SERVER_TOKEN\" \
+          -e DISCORD_WEBHOOK=\"$DISCORD_WEBHOOK\" \
           -e BEPINEX=true \
           lloesche/valheim-server"
         
@@ -219,6 +220,7 @@ case "$ACTION" in
           -e SERVER_PORT=\"$SERVER_PORT\" \
           -e PUBLIC=\"$PUBLIC\" \
           -e SERVER_TOKEN=\"$SERVER_TOKEN\" \
+          -e DISCORD_WEBHOOK=\"$DISCORD_WEBHOOK\" \
           -e BEPINEX=true \
           lloesche/valheim-server"
         

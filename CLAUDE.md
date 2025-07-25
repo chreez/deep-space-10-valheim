@@ -45,3 +45,9 @@ When the r2modman profile is updated:
 - **Windows Path**: `D:\SteamLibrary\steamapps\common\Valheim`
 
 **Note**: Direct file manipulation is no longer recommended. Use r2modman for all client-side mod management.
+
+## Read-Only Windows Client Profile
+
+- Profile located at `C:\Users\Chris\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\DS10`
+- Used exclusively to analyze windows "client" game install modpack installation
+- Contains `mods.yml` file which serves as reference for "Player's game files" or client-side installation details

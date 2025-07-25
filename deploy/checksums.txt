@@ -1,2 +1,4 @@
 MD5 (deep.space.10-vtest.zip) = 986a9a2d645d13fb2eea5a56b0637a04
 SHA256 (deep.space.10-vtest.zip) = d46e8b541d0090063835beaff57b346258fb32efdc8f76eafcdd049bd1494ead
+MD5 (deep.space.10-v2.3.0.zip) = 9882372b62bd33621551259246ddb05d
+SHA256 (deep.space.10-v2.3.0.zip) = 411110b4d88d61395e4115fe1e734ff969a2f8b4bcbc795dfacf7aea9d2db30b
